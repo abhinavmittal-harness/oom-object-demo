@@ -16,7 +16,7 @@ public class UserSession {
     private boolean valid;
     
     // Session timeout in minutes
-    private static final int SESSION_TIMEOUT_MINUTES = 1; // Reduced from 30 to 1 minute
+    private static final int SESSION_TIMEOUT_MINUTES = 1;
     
     public UserSession(String userId) {
         this.sessionId = UUID.randomUUID().toString();

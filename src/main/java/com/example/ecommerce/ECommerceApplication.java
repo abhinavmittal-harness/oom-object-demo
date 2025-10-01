@@ -15,8 +15,7 @@ import java.util.Random;
  * This is a realistic e-commerce application simulation that processes orders,
  * manages inventory, handles user sessions, and performs analytics.
  * 
- * CHALLENGE: There is ONE subtle memory leak in this application.
- * Your task is to find it using heap dump analysis!
+ * This application simulates a realistic e-commerce system.
  * 
  * The application simulates:
  * - User registration and login
@@ -60,13 +59,10 @@ public class ECommerceApplication {
     }
     
     public static void main(String[] args) {
-        System.out.println("=== E-Commerce Application - Memory Leak Challenge ===");
+        System.out.println("=== E-Commerce Application ===");
         System.out.println("This application simulates a realistic e-commerce system.");
-        System.out.println("There is ONE subtle memory leak hidden in the code.");
-        System.out.println("Your challenge: Find it using heap dump analysis!");
         System.out.println();
         System.out.println("Run with: -Xmx1g -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./heap-dumps/");
-        System.out.println("Expected OOM time: 10-15 minutes");
         System.out.println();
         
         ECommerceApplication app = new ECommerceApplication();
@@ -127,7 +123,7 @@ public class ECommerceApplication {
     private void startBackgroundServices() {
         logger.info("Starting background services...");
         
-        // User activity simulation (increased frequency for faster memory leak)
+        // User activity simulation
         scheduler.scheduleAtFixedRate(this::simulateUserActivity, 0, 50, TimeUnit.MILLISECONDS);
         
         // Order processing
@@ -139,7 +135,7 @@ public class ECommerceApplication {
         // Analytics processing
         scheduler.scheduleAtFixedRate(this::processAnalytics, 0, 1000, TimeUnit.MILLISECONDS);
         
-        // Session cleanup (this should clean up expired sessions) - more frequent for faster leak
+        // Session cleanup
         scheduler.scheduleAtFixedRate(this::cleanupSessions, 0, 500, TimeUnit.MILLISECONDS);
         
         // Notification processing
@@ -175,7 +171,7 @@ public class ECommerceApplication {
     
     private void simulateUserActivity() {
         try {
-            // Simulate users logging in and out (increased probability for faster memory leak)
+            // Simulate users logging in and out
             if (random.nextDouble() < 0.8) {
                 String email = "user" + (1 + random.nextInt(500)) + "@example.com";
                 User user = userService.getUserByEmail(email);
@@ -335,7 +331,6 @@ public class ECommerceApplication {
     
     private void cleanupSessions() {
         try {
-            // This should clean up expired sessions, but there might be a bug...
             int cleanedUp = sessionManager.cleanupExpiredSessions();
             if (cleanedUp > 0) {
                 logger.debug("Cleaned up " + cleanedUp + " expired sessions");

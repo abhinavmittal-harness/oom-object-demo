@@ -12,18 +12,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Session Manager - Handles user sessions and shopping carts
- * 
- * WARNING: This class contains a subtle memory leak!
- * Can you find it through heap dump analysis?
  */
 public class SessionManager {
     private final Map<String, UserSession> activeSessions;
-    private final Map<String, UserSession> expiredSessions; // This is the memory leak!
+    private final Map<String, UserSession> expiredSessions;
     private final Logger logger;
     
     public SessionManager(Logger logger) {
         this.activeSessions = new ConcurrentHashMap<>();
-        this.expiredSessions = new ConcurrentHashMap<>(); // BUG: Never cleaned up!
+        this.expiredSessions = new ConcurrentHashMap<>();
         this.logger = logger;
     }
     
@@ -82,9 +79,7 @@ public class SessionManager {
     }
     
     /**
-     * This method is supposed to clean up expired sessions, but it has a bug!
-     * It moves expired sessions to a separate collection but never removes them.
-     * This causes a memory leak as expired sessions accumulate over time.
+     * Clean up expired sessions
      */
     public int cleanupExpiredSessions() {
         List<String> expiredSessionIds = new ArrayList<>();
@@ -98,19 +93,14 @@ public class SessionManager {
             }
         }
         
-        // Move expired sessions to "expired" collection (BUG: Never cleaned from here!)
+        // Move expired sessions to "expired" collection
         for (String sessionId : expiredSessionIds) {
             UserSession expiredSession = activeSessions.remove(sessionId);
             if (expiredSession != null) {
                 expiredSession.invalidate();
-                // BUG: This line causes the memory leak!
-                // Expired sessions are stored but never removed
                 expiredSessions.put(sessionId, expiredSession);
             }
         }
-        
-        // The correct fix would be to simply not store expired sessions:
-        // Just remove them from activeSessions and let them be garbage collected
         
         if (!expiredSessionIds.isEmpty()) {
             logger.debug("Moved " + expiredSessionIds.size() + " expired sessions to expired collection");
@@ -124,7 +114,7 @@ public class SessionManager {
     }
     
     public int getExpiredSessionCount() {
-        return expiredSessions.size(); // This will keep growing!
+        return expiredSessions.size();
     }
     
     public int getTotalSessionCount() {
@@ -132,8 +122,7 @@ public class SessionManager {
     }
     
     /**
-     * This method could be used to fix the memory leak, but it's never called!
-     * In a real application, this might be called by a maintenance job.
+     * Purge old expired sessions
      */
     public void purgeOldExpiredSessions() {
         LocalDateTime cutoff = LocalDateTime.now().minusHours(24);
